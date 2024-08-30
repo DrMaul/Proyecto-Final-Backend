@@ -1,0 +1,17 @@
+<h2>Carrito {{cart._id}}</h2>
+<hr>
+
+<ul>
+    {{#each cart.products}}
+        <li>
+            {{product.title}} - precio: {{product.price}} - cantidad: {{quantity}}
+        </li>
+    {{/each}}
+</ul>
+
+<br>
+<br>
+<a href="javascript:void(0);" onclick="setTicket('{{cart._id}}')">Finalizar Compra</a>
+<a href="/products">Seguir Comprando</a>
+
+<script src="/js/setCart.js"></script>

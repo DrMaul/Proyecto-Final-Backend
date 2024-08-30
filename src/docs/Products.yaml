@@ -1,0 +1,321 @@
+paths:
+  /api/products:
+    get:
+      summary: Obtener todos los productos
+      tags:
+        - Products
+      description: Devuelve un listado con todos los productos existentes
+      responses:
+        '200':    # status code
+          description: Listado de productos
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  products:
+                    type: array
+                    items: 
+                      $ref: "#components/schemas/Product"
+        '500':    # status code
+          description: "Error: Internal Server Error"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e500'
+    post:
+      summary: Crear nuevo producto
+      tags:
+        - Products
+      description: Insertar nuevo producto en la Base de Datos
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#components/requestBody/product'
+      responses:
+        '201':    # status code
+          description: Nuevo producto creado
+        '400':    # status code
+          description: "Error: Argumentos Invalidos"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e400'
+        '500':    # status code
+          description: "Error: Internal Server Error"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e500'
+  /api/products/:pid:
+    get:
+      summary: Obtener un único producto por su Id
+      tags:
+        - Products
+      description: Devuelve un único producto
+      parameters:
+      - name: pid
+        in: path
+        required: true
+        description: Id del producto
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: true
+        description: Token de autenticación
+        schema:
+          type: string              
+      responses:
+        '200':    # status code
+          description: Producto identificado con Id de Mongo
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/requestBody/product'
+        '400':    # status code
+          description: "Error: Argumentos Invalidos"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e400'
+        '404':    # status code
+          description: "Error: Not Found"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e404'
+        '500':    # status code
+          description: "Error: Internal Server Error"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e500'
+    put:
+      summary: Actualizar producto según su Id
+      tags:
+        - Products
+      description: Devuelve el producto actualizado
+      parameters:
+      - name: pid
+        in: path
+        required: true
+        description: Id del producto
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: true
+        description: Token de autenticación
+        schema:
+          type: string              
+      responses:
+        '200':    # status code
+          description: Producto actualizado
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/requestBody/product'
+        '400':    # status code
+          description: "Error: Argumentos Invalidos"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e400'
+        '404':    # status code
+          description: "Error: Not Found"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e404'
+        '500':    # status code
+          description: "Error: Internal Server Error"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e500'  
+    delete:
+      summary: Eliminar producto según su Id
+      tags:
+        - Products
+      description: Elimina el producto indicado
+      parameters:
+      - name: pid
+        in: path
+        required: true
+        description: Id del producto
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: true
+        description: Token de autenticación
+        schema:
+          type: string              
+      responses:
+        '200':    # status code
+          description: Producto actualizado
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  payload:
+                    type: string
+                    example: "Producto eliminado correctamente"
+        '400':    # status code
+          description: "Error: Argumentos Invalidos"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e400'
+        '404':    # status code
+          description: "Error: Not Found"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e404'
+        '500':    # status code
+          description: "Error: Internal Server Error"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e500'  
+  /api/products/updateOwner:
+    post:
+      summary: Actualizar los Owners de los Products
+      tags:
+        - Products
+      description: Actualiza los Owner de todos los productos de la Base de Datos
+      parameters:
+      - name: uid
+        in: path
+        required: true
+        description: Id del usuario Owner
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: true
+        description: Token de autenticación
+        schema:
+          type: string      
+      responses:
+        '200':    # status code
+          description: Producto actualizado
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  payload:
+                    type: string
+                    example: "Todos los productos fueron actualizados con el nuevo owner"
+        '400':    # status code
+          description: "Error: Argumentos Invalidos"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e400'
+        '500':    # status code
+          description: "Error: Internal Server Error"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e500'
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        _id:
+          type: ObjectId
+          description: Id autogenerado de mongo
+        title:
+          type: string
+          description: Titulo del producto
+        description:
+          type: string
+          description: Descripción del producto   
+        code:
+          type: string
+          description: Código del producto
+        price: 
+          type: number
+          description: Precio del producto
+        stock: 
+          type: number
+          description: Stock del producto 
+        category: 
+          type: string
+          description: Categoría del producto 
+        owner:
+          type: ObjectId
+          description: Dueño del producto
+      example:
+        _id: ObjectId("66341e2a22097d57605c0bfa")
+        title: Camiseta Real Madrid Titular 23/24
+        description: Camiseta Real Madrid Titular temporada 2023/24
+        code: rmad0123
+        price: 80000
+        stock: 14
+        category: Camisetas
+        owner: ObjectId("66a7fa07975e27127485ee3b")
+  requestBody:
+    product:
+      type: object
+      properties:
+        _id:
+          type: ObjectId
+          description: Id autogenerado de mongo
+        title:
+          type: string
+          description: Titulo del producto
+        description:
+          type: string
+          description: Descripción del producto   
+        code:
+          type: string
+          description: Código del producto
+        price: 
+          type: number
+          description: Precio del producto
+        stock: 
+          type: number
+          description: Stock del producto 
+        category: 
+          type: string
+          description: Categoría del producto 
+        owner:
+          type: ObjectId
+          description: Dueño del producto
+      example:
+        _id: ObjectId("66341e2a22097d57605c0bfa")
+        title: Camiseta Real Madrid Titular 23/24
+        description: Camiseta Real Madrid Titular temporada 2023/24
+        code: rmad0123
+        price: 80000
+        stock: 14
+        category: Camisetas
+        owner: ObjectId("66a7fa07975e27127485ee3b")
+  errors:
+    e400:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Argumentos Invalidos"
+    e404:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Producto no encontrado"
+    e500:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Internal Server Error - Contactar al administrador"

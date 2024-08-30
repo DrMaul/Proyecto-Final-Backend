@@ -1,0 +1,27 @@
+<h2>Subir Archivos:</h2>
+<hr>
+<br>
+<form action="/api/users/{{usuario._id}}/documents" method="post" enctype="multipart/form-data">
+    <label for="profile">Subir imagen de perfil</label>
+    <input type="file" name="profile" id="profile">
+    <button type="submit">Subir imagen de perfil</button>
+</form>
+<br>
+<form action="/api/users/{{usuario._id}}/documents" method="post" enctype="multipart/form-data">
+    <label for="profile">Subir imagen de producto</label>
+    <input type="file" name="product" id="product">
+    <button type="submit">Subir imagen de producto</button>
+</form>
+<br>
+<form action="/api/users/{{usuario._id}}/documents" method="post" enctype="multipart/form-data">
+    <label for="profile">Subir documento</label>
+    <select name="documentType" id="documentType">
+        <option value="identificacion">Identificacion</option>
+        <option value="compDomicilio">Domicilio</option>
+        <option value="compEstadoCuenta">Estado de Cuenta</option>
+    </select>
+    <input type="file" name="document" id="document">
+    <button type="submit">Subir documento</button>
+</form>
+<br><br>
+{{>menu}}

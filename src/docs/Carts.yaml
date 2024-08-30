@@ -1,0 +1,466 @@
+paths:
+  /api/carts:
+    get:
+      summary: Obtener todos los carritos
+      tags:
+        - Carts
+      description: Devuelve un listado con todos los carritos existentes
+      responses:
+        '200':    # status code
+          description: Listado de carritos
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  products:
+                    type: array
+                    items: 
+                      $ref: "#components/schemas/Cart"
+        '500':    # status code
+          description: "Error: Internal Server Error"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e500'
+    post:
+      summary: Crear nuevo carrito
+      tags:
+        - Carts
+      description: Insertar nuevo carrito en la Base de Datos
+      responses:
+        '201':    # status code
+          description: Nuevo producto creado
+        '400':    # status code
+          description: "Error: Argumentos Invalidos"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e400'
+        '500':    # status code
+          description: "Error: Internal Server Error"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e500'
+  /api/carts/:cid:
+    get:
+      summary: Obtener un único carrito por su Id
+      tags:
+        - Carts
+      description: Devuelve un único carrito
+      parameters:
+      - name: cid
+        in: path
+        required: true
+        description: Id del carrito
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: true
+        description: Token de autenticación
+        schema:
+          type: string              
+      responses:
+        '200':    # status code
+          description: Listado de carritos
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  products:
+                    type: array
+                    items: 
+                      $ref: "#components/schemas/Cart"
+        '400':    # status code
+          description: "Error: Argumentos Invalidos"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e400'
+        '404':    # status code
+          description: "Error: Not Found"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e404'
+        '500':    # status code
+          description: "Error: Internal Server Error"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e500'
+    put:
+      summary: Actualizar carrito según su Id
+      tags:
+        - Carts
+      description: Devuelve el carrito actualizado
+      parameters:
+      - name: pid
+        in: path
+        required: true
+        description: Id del carrito
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: true
+        description: Token de autenticación
+        schema:
+          type: string              
+      responses:
+        '200':    # status code
+          description: Carrito actualizado
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  products:
+                    type: array
+                    items: 
+                      $ref: "#components/schemas/Cart"
+        '400':    # status code
+          description: "Error: Argumentos Invalidos"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e400'
+        '404':    # status code
+          description: "Error: Not Found"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e404'
+        '500':    # status code
+          description: "Error: Internal Server Error"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e500'  
+    delete:
+      summary: Eliminar carrito según su Id
+      tags:
+        - Carts
+      description: Elimina el carrito indicado
+      parameters:
+      - name: pid
+        in: path
+        required: true
+        description: Id del carrito
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: true
+        description: Token de autenticación
+        schema:
+          type: string              
+      responses:
+        '200':    # status code
+          description: Carrito eliminado
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  payload:
+                    type: string
+                    example: "Carrito eliminado correctamente"
+        '400':    # status code
+          description: "Error: Argumentos Invalidos"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e400'
+        '404':    # status code
+          description: "Error: Not Found"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e404'
+        '500':    # status code
+          description: "Error: Internal Server Error"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e500'  
+  /api/carts/:cid/product/:pid:
+    post:
+      summary: Agregar producto al carrito sus Id
+      tags:
+        - Carts
+      description: Devuelve el carrito con el producto agregado
+      parameters:
+      - name: cid
+        in: path
+        required: true
+        description: Id del carrito
+        schema:
+          type: string
+      - name: pid
+        in: path
+        required: true
+        description: Id del producto
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: true
+        description: Token de autenticación
+        schema:
+          type: string              
+      responses:
+        '200':    # status code
+          description: Carrito con el producto agregado
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  payload:
+                    type: string
+                    example: "Se ha agregado el producto al carrito exitosamente"
+        '400':    # status code
+          description: "Error: Argumentos Invalidos"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e400'
+        '404':    # status code
+          description: "Error: Not Found"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e404'
+        '500':    # status code
+          description: "Error: Internal Server Error"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e500'
+    put:
+      summary: Actualizar producto del carrito sus Id
+      tags:
+        - Carts
+      description: Devuelve el carrito con el producto actualizado
+      parameters:
+      - name: cid
+        in: path
+        required: true
+        description: Id del carrito
+        schema:
+          type: string
+      - name: pid
+        in: path
+        required: true
+        description: Id del producto
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: true
+        description: Token de autenticación
+        schema:
+          type: string              
+      responses:
+        '200':    # status code
+          description: Carrito con el producto actualizado
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  payload:
+                    type: string
+                    example: "Se ha actualizado el producto del carrito exitosamente"
+        '400':    # status code
+          description: "Error: Argumentos Invalidos"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e400'
+        '404':    # status code
+          description: "Error: Not Found"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e404'
+        '500':    # status code
+          description: "Error: Internal Server Error"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e500'
+    delete:
+      summary: Elininar producto dl carrito sus Id
+      tags:
+        - Carts
+      description: Elimina un producto del carrito
+      parameters:
+      - name: cid
+        in: path
+        required: true
+        description: Id del carrito
+        schema:
+          type: string
+      - name: pid
+        in: path
+        required: true
+        description: Id del producto
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: true
+        description: Token de autenticación
+        schema:
+          type: string              
+      responses:
+        '200':    # status code
+          description: Carrito con el producto eliminado
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  payload:
+                    type: string
+                    example: "Se ha eliminado el producto del carrito exitosamente"
+        '400':    # status code
+          description: "Error: Argumentos Invalidos"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e400'
+        '404':    # status code
+          description: "Error: Not Found"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e404'
+        '500':    # status code
+          description: "Error: Internal Server Error"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e500'
+  /api/carts/:cid/purchase:
+    post:
+      summary: Finalizar compra del carrito
+      tags:
+        - Carts
+      description: Finaliza la compra del carrito con sus productos
+      parameters:
+      - name: cid
+        in: path
+        required: true
+        description: Id del carrito
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: true
+        description: Token de autenticación
+        schema:
+          type: string      
+      responses:
+        '200':    # status code
+          description: Carrito actualizado
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  payload:
+                    type: string
+                    example: "Compra finalizada"
+        '400':    # status code
+          description: "Error: Argumentos Invalidos"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e400'
+        '500':    # status code
+          description: "Error: Internal Server Error"
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/errors/e500'
+components:
+  schemas:
+    Cart:
+      type: object
+      properties:
+        _id:
+          type: ObjectId
+          description: Id autogenerado de mongo
+        products:
+          type: array
+          items:       
+            Product:
+              type: object
+              properties:
+                _id:
+                  type: ObjectId
+                  description: Id autogenerado de mongo
+                title:
+                  type: string
+                  description: Titulo del producto
+                description:
+                  type: string
+                  description: Descripción del producto   
+                code:
+                  type: string
+                  description: Código del producto
+                price: 
+                  type: number
+                  description: Precio del producto
+                stock: 
+                  type: number
+                  description: Stock del producto 
+                category: 
+                  type: string
+                  description: Categoría del producto 
+                owner:
+                  type: ObjectId
+                  description: Dueño del producto
+              example:
+                _id: ObjectId("66341e2a22097d57605c0bfa")
+                title: Camiseta Real Madrid Titular 23/24
+                description: Camiseta Real Madrid Titular temporada 2023/24
+                code: rmad0123
+                price: 80000
+                stock: 14
+                category: Camisetas
+                owner: ObjectId("66a7fa07975e27127485ee3b")
+            quantity:
+              type: number
+              description: Cantidad del producto en carrito
+        totalPrice:
+          type: number
+          description: Precio total del carrito
+        user:
+          type: ObjectId
+          description: Id autogenerado de mongo
+  errors:
+    e400:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Argumentos Invalidos"
+    e404:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Producto no encontrado"
+    e500:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Internal Server Error - Contactar al administrador"

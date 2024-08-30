@@ -1,0 +1,14 @@
+<h2>Usuario {{usuario.nombre}}</h2>
+<hr>
+<h3>Datos usuario:</h3>
+<p>Nombre: <strong>{{usuario.nombre}}</strong></p>
+<p>Rol: <strong>{{usuario.rol}}</strong></p>
+<p>Correo electrónico: <strong>{{usuario.email}}</strong></p>
+<br>
+<a href="/resetPassword">Reestablecer Contraseña</a>
+<br><br>
+<a href="/products">Comprar</a>
+<br><br>
+<a href="/documents/{{usuario._id}}">Agregar Documentos</a>
+<br><br>
+{{>menu}}
