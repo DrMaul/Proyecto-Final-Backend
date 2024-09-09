@@ -4,6 +4,8 @@ dotenv.config({
     path: "./src/.env", override:true
 })
 
+
+
 export const config = {
     PORT: process.env.PORT || 3000,
     MONGO_URL: process.env.MONGO_URL,
@@ -13,6 +15,8 @@ export const config = {
     PASSWORD_NODEMAILER: process.env.PASSWORD_NODEMAILER,
     MODE: process.env.MODE,
     ADMINUSER: process.env.ADMINUSER,
-    ADMINPASSWORD: process.env.ADMINPASSWORD
+    ADMINPASSWORD: process.env.ADMINPASSWORD,
+    PREMIUMUSER: process.env.PREMIUMUSER,
+    PREMIUMPASSWORD: process.env.PREMIUMPASSWORD
 
 }

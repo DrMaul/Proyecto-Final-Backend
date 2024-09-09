@@ -34,6 +34,9 @@ export class ProductMongoDAO {
         return await productsModelo.updateMany({}, { owner: id });
     }
     
+    async updateThumbnail(idProd, thumbnailUrl){
+        return await productsModelo.findByIdAndUpdate(idProd, { thumbnail: thumbnailUrl }, {runValidators: true, returnDocument: "after"}).lean()
+    }
     
 }
 

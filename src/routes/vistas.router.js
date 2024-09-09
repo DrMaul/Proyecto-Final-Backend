@@ -84,32 +84,8 @@ router.get('/products', auth(["admin", "user","premium"]),async (req,res)=> {
 
     let categories = await productService.getCategories()
 
-    /* let reqPage = parseInt(page)
-    if(isNaN(reqPage)){
-        res.setHeader('Content-Type','application/json');
-        return res.status(400).json({error:`Error en Page params`})
-    } */
-
-    
-
-    /* let cart
-    try {
-        cart = await cartService.getCartByPopulate()
-        if(!cart){
-        console.log("Se crea nuevo Cart")
-        cart = await cartService.createCart()
-        }
-    } catch (error) {
-        res.setHeader('Content-Type','application/json');
-        return res.status(500).json(
-            {
-                error:`Error inesperado en el servidor - Intente más tarde, o contacte a su administrador`,
-                detalle:`${error.message}`
-            }
-        )
-        
-    } */
-
+    let usuario = req.session.usuario; // O el objeto usuario que estés manejando
+    let esAdmin = usuario.rol === 'admin'; // Verifica si es admin
     
     
     res.setHeader('Content-type', 'text/html')
@@ -126,7 +102,8 @@ router.get('/products', auth(["admin", "user","premium"]),async (req,res)=> {
         nextLink,
         categories: categories, 
         cart,
-        usuario:req.session.usuario
+        usuario,
+        esAdmin
     })
 })
 
@@ -169,5 +146,27 @@ router.get("/documents/:id",(req,res)=>{
         _id: req.session.usuario.cart._id
     }
     
-    res.render("uploadDocuments",{usuario: req.session.usuario, cart})
+    res.status(200).render("uploadDocuments",{usuario: req.session.usuario, cart})
+})
+
+router.get("/product/:pid",auth(["admin"]), async (req, res)=> {
+    let {pid} = req.params
+
+    // console.log(pid)
+
+    let product 
+    try {
+        product = await productService.getProductBy({_id:pid})
+        if(!product){
+            return CustomError.createError("Error Not Found", null,`Producto con ID:${pid} no encontrado`,TIPOS_ERROR.NOT_FOUND)
+        }
+
+    } catch (error) {
+        return CustomError.createError("Error", null,"Internal server Error",TIPOS_ERROR.INTERNAL_SERVER_ERROR)
+    }
+
+    // console.log(product)
+
+    res.setHeader('Content-Type','text/html');
+    return res.status(200).render("editProduct", {product});
 })

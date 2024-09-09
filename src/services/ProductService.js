@@ -38,6 +38,9 @@ class ProductService{
         return await this.productDAO.updateOwner(id);
     }
     
+    async updateThumbnail(id, thumbnailUrl){
+        return await this.productDAO.updateThumbnail(id, thumbnailUrl)
+    }
     
 }
 

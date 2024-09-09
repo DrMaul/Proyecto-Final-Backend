@@ -1,12 +1,9 @@
 import passport from 'passport'
 import local from 'passport-local'
 import github from 'passport-github2'
-import { UsuariosMongoDAO as UsuariosManager} from '../dao/UsuariosMongoDAO.js'
-import { CartMongoDAO as CartManager } from '../dao/CartMongoDAO.js'
 import { generaHash, validaPassword } from '../utils.js'
-
-const usuariosManager = new UsuariosManager()
-const cartManager = new CartManager()
+import { userService } from '../services/UserService.js'
+import { cartService } from '../services/CartService.js'
 
 //paso 1
 export const initPassport = () => {
@@ -14,28 +11,29 @@ export const initPassport = () => {
     passport.use(
         "github",
         new github.Strategy(
-            {
-                clientID:"Iv23liPRCJzxkr5KfDmE",
-                clientSecret:"0bad4a444de0170d99691529e038ca2493f0fcc6",
+            {   
+                clientID: "Iv23liPRCJzxkr5KfDmE",
+                clientSecret: "0bad4a444de0170d99691529e038ca2493f0fcc6",
                 callbackURL:"http://localhost:8080/api/sessions/callbackGithub"
             },
             async(accessToken, refreshToken, profile, done)=> {
                 try {
+                    
                     let email = profile._json.email
                     let nombre = profile._json.name
                     if(!email){
                         return done(null,false)
                     }
 
-                    let usuario = await usuariosManager.getByPopulate({email})
+                    let usuario = await userService.getUserByPopulate({email})
                     if(!usuario){
-                        let nuevoCarrito = await cartManager.createCart()
-                        usuario = await usuariosManager.create(
+                        let nuevoCarrito = await cartService.createCart()
+                        usuario = await userService.createUser(
                             {
                                 nombre, email, profile, cart: nuevoCarrito._id 
                             }
                         )
-                        usuario = await usuariosManager.getByPopulate({email})
+                        usuario = await userService.getUserByPopulate({email})
 
                         
                     }
@@ -56,42 +54,55 @@ export const initPassport = () => {
             },
             async(req, username, password, done) => {
                 try {
-                    let {nombre} = req.body
+                    let {nombre, apellido, edad} = req.body
+                    edad = parseInt(edad, 10);
 
-                    console.log("nombre: ",nombre)
-                    console.log("email: ",username)
-                    console.log("password: ",password)
+                    // console.log("nombre: ",nombre)
+                    // console.log("apellido: ",apellido)
+                    // console.log("edad: ",edad)
+                    // console.log("email: ",username)
+                    // console.log("password: ",password)
 
                     let nombreRegex = /^[a-zA-Z\s\-']+$/
                     let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-                    //let passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/
+                    let passwordRegex = /^[A-Za-z0-9]{8,}$/;
                     
+
                     //Validación del nombre
                     if (!nombre || typeof nombre !== 'string' || nombre.length < 2 || nombre.length > 40 || !nombreRegex.test(nombre)) {
-                        return done(null, false);
+                        return done(null, false, { message: 'Nombre invalido' });
                     }
 
-                    let existe = await usuariosManager.getBy({email: username})
+                    //Validación del apellido
+                    if (!apellido || typeof apellido !== 'string' || apellido.length < 2 || apellido.length > 40 || !nombreRegex.test(apellido)) {
+                        return done(null, false, { message: 'Apellido invalido' });
+                    }
+
+                    // Validación de la edad
+                    if (typeof edad !== 'number' || edad < 0 || edad > 999) {
+                        return done(null, false, { message: 'Edad invalida' });
+                    }
+
+                    let existe = await userService.getUserBy({email: username})
                     if(existe){
-                        return done(null, false)
+                        return done(null, false, { message: 'El correo ya está registrado' })
                     }
 
                     //Validación del email
                     if (!emailRegex.test(username)) {
-                        return done(null, false);
+                        return done(null, false, { message: 'Email invalido' });
                     }
 
                     //Validación de password
-                    /* if (!passwordRegex.test(password)) {
-                        console.log("Error al registrar la Password: La contraseña debe incluir al menos una letra mayúscula, una minúscula, un número y un minimo de 8 caracteres")
-                        return done(null, false);
-                    } */
+                    if (!passwordRegex.test(password)) {
+                        return done(null, false, { message: 'Contraseña invalida' });
+                    }
 
-                    let nuevoCarrito = await cartManager.create()
+
+                    let nuevoCarrito = await cartService.createCart()
                     password = generaHash(password)
 
-                    let usuario = await usuariosManager.create({nombre, email:username, password, cart:nuevoCarrito._id})
-
+                    let usuario = await userService.createUser({first_name: nombre,last_name: apellido,age: edad, email:username, password, cart:nuevoCarrito._id})
                     return done(null, usuario)
 
 
@@ -111,18 +122,18 @@ export const initPassport = () => {
             async(username, password, done)=> {
                 try {
 
-                    let usuario = await usuariosManager.getByPopulate({email:username})
+                    let usuario = await userService.getUserByPopulate({email:username})
                     if(!usuario){
-                        return done(null,false)
+                        return done(null,false, { message: 'Email incorrecto' })
                     }
 
                     if(!validaPassword(password, usuario.password)){
-                        return done(null,false)
+                        return done(null,false, { message: 'Contraseña incorrecta' })
 
                     }
 
                     usuario = {...usuario}
-                    delete usuario.password //y resto de datos sensibles
+                    delete usuario.password 
 
                     return done(null,usuario)
                 } catch (error) {
@@ -138,7 +149,7 @@ export const initPassport = () => {
     })
 
     passport.deserializeUser(async (id, done)=>{
-        let usuario = await usuariosManager.getBy({_id:id})
+        let usuario = await userService.getUserBy({_id:id})
         return done(null,usuario)
     })
 

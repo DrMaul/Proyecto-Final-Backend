@@ -3,11 +3,10 @@ import { productService } from "../services/ProductService.js";
 import { CustomError } from "../utils/CustomError.js";
 import { TIPOS_ERROR } from "../utils/EErrors.js";
 
-
 export class ProductController{
     static getProducts = async (req,res,next)=> {
         try {
-            try {
+            
             let products = await productService.getProducts()
             let limit = req.query.limit
             if(limit && limit > 0){
@@ -15,9 +14,7 @@ export class ProductController{
             }
             res.setHeader('Content-type', 'application/json')
             res.status(200).json({products})
-            } catch (error) {
-                return CustomError.createError("Error", null,"Internal server Error",TIPOS_ERROR.INTERNAL_SERVER_ERROR)
-            }
+            
         } catch (error) {
             req.logger.fatal(JSON.stringify({
                 name:error.name, 
@@ -35,16 +32,14 @@ export class ProductController{
             if(!isValidObjectId(id)){
                 return CustomError.createError("Error ID", null,"Ingresar ID valido de MongoDB",TIPOS_ERROR.ARGUMENTOS_INVALIDOS)
             }
-            try {
-                let product = await productService.getProductBy({_id:id})
-                if (!product){
-                    return CustomError.createError("Error Not Found", null,`No existe el producto con id: ${id}`,TIPOS_ERROR.NOT_FOUND)
-                }
-                res.setHeader('Content-type', 'application/json')
-                return res.status(200).json({product})
-            } catch (error) {
-                return CustomError.createError("Error", null,"Internal server Error",TIPOS_ERROR.INTERNAL_SERVER_ERROR)
+            
+            let product = await productService.getProductBy({_id:id})
+            if (!product){
+                return CustomError.createError("Error Not Found", null,`No existe el producto con id: ${id}`,TIPOS_ERROR.NOT_FOUND)
             }
+            res.setHeader('Content-type', 'application/json')
+            return res.status(200).json({product})
+            
         } catch (error) {
             next(error)
         }
@@ -91,11 +86,8 @@ export class ProductController{
                 return CustomError.createError("Error argumentos invalidos", null,`El producto ${title} con código: ${code} ya existe`,TIPOS_ERROR.ARGUMENTOS_INVALIDOS)
             }
             
-            let product
-            try {
-                product = await productService.addProduct({title, description, code, price, status, stock, category, thumbnail, owner}) 
-                
-            } catch (error) {
+            let product = await productService.addProduct({title, description, code, price, status, stock, category, thumbnail, owner}) 
+            if (!product){
                 return CustomError.createError("Error", null,"Internal server Error",TIPOS_ERROR.INTERNAL_SERVER_ERROR)
             }
         
@@ -116,35 +108,37 @@ export class ProductController{
     static updateProduct = async (req,res,next)=> {
         try {
             let id = req.params.pid
+            let aModificar
         
             if(!isValidObjectId(id)){
                 return CustomError.createError("Error ID", null,"Ingresar ID valido de MongoDB",TIPOS_ERROR.ARGUMENTOS_INVALIDOS)
             }
         
-            let aModificar = req.body
-            if (aModificar._id){
-                delete aModificar._id
-            }
-        
-            if(aModificar.code){
-                let existe
-                try {
-                    existe = await productService.getProductBy({_id:{$ne:id},code: aModificar.code})
-                    if(existe){
-                        return CustomError.createError("Error argumentos invalidos", null,`El producto ${aModificar.code} con código: ${aModificar.code} ya existe`,TIPOS_ERROR.ARGUMENTOS_INVALIDOS)
-                    }
-                } catch (error) {
-                    return CustomError.createError("Error", null,"Internal server Error",TIPOS_ERROR.INTERNAL_SERVER_ERROR)
+            let { editProduct, editProductValue } = req.body;
+
+            aModificar = {[editProduct]: editProductValue}
+
+            if(!editProduct || !editProductValue){
+                aModificar = req.body
+                if (aModificar._id){
+                    delete aModificar._id
                 }
             }
+
         
-            try{
-                let productoModificado = await productService.updateProduct(id, aModificar)
-                res.setHeader('Content-type', 'application/json')
-                return res.status(200).json(productoModificado)
-            }catch (error) {
-                return CustomError.createError("Error", null,"Internal server Error",TIPOS_ERROR.INTERNAL_SERVER_ERROR)
+            if(aModificar.code){
+                let existe = await productService.getProductBy({_id:{$ne:id},code: aModificar.code})
+                if(existe){
+                    return CustomError.createError("Error argumentos invalidos", null,`El producto ${aModificar.code} con código: ${aModificar.code} ya existe`,TIPOS_ERROR.ARGUMENTOS_INVALIDOS)
+                }
+                
             }
+        
+            
+            let productoModificado = await productService.updateProduct(id, aModificar)
+            res.setHeader('Content-type', 'application/json')
+            return res.status(200).json(productoModificado)
+            
             
         } catch (error) {
             req.logger.fatal(JSON.stringify({
@@ -169,41 +163,33 @@ export class ProductController{
             let ownerRol =req.session.usuario.rol
             let producto
             let productoEliminado
-            let productos
-            try{
-                productos = await productService.getProducts()
 
-                producto = await productService.getProductBy({_id:id})
-                if(producto){
-                    let idProductOwner = producto.owner
-                    if(idProductOwner === ownerId && ownerRol === "premium"){
-                        productoEliminado = await productService.deleteProduct(id)
-
-                    }
-                    if(ownerRol === "admin"){
-                        productoEliminado = await productService.deleteProduct(id)
-                    }
-
-
-                }
-
-                
-                if(productoEliminado.deletedCount > 0){
-                    res.setHeader('Content-Type','application/json');
-                    return res.status(200).json({payload:`Producto con id: ${id} eliminado`});
-                }
-                else {
-                    return CustomError.createError("Error Not Found", null,`No existen productos con id: ${id}`,TIPOS_ERROR.NOT_FOUND)
-                }
-        
-            }catch (error) {
-                return CustomError.createError("Error", null,"Internal server Error",TIPOS_ERROR.INTERNAL_SERVER_ERROR)
+            producto = await productService.getProductBy({_id:id})
+            if(!producto){
+                return CustomError.createError("Error Not Found", null,`No existe el producto con id: ${id}`,TIPOS_ERROR.NOT_FOUND)
             }
-        
+
+            let idProductOwner = producto.owner
+            if(idProductOwner === ownerId && ownerRol === "premium" || ownerRol === "admin"){
+                productoEliminado = await productService.deleteProduct(id)
+
+            }
+            else{
+                return CustomError.createError("Acceso denegado", null, "No tienes permiso para eliminar este producto", TIPOS_ERROR.AUTORIZACION);
+            }
+
             
-            req.io.emit("productoBorrado", productos)
-            res.setHeader('Content-type', 'application/json')
-            return res.status(200).json({productoEliminado})
+            if(productoEliminado.deletedCount > 0){
+                let productos = await productService.getProducts()
+                req.io.emit("productoBorrado", productos)
+                res.setHeader('Content-Type','application/json');
+                return res.status(200).json({payload:`Producto con id: ${id} eliminado`});
+
+            }
+            else {
+                return CustomError.createError("Error Not Found", null,`No existen productos con id: ${id}`,TIPOS_ERROR.NOT_FOUND)
+            }
+            
         } catch (error) {
             req.logger.fatal(JSON.stringify({
                 name:error.name, 
@@ -228,6 +214,44 @@ export class ProductController{
         } catch (error) {
             res.setHeader('Content-Type','application/json');
             return res.status(400).json({error:`Error al actualizar owner`})
+        }
+    }
+
+    static uploadProductImage = async (req, res, next) => {
+        try {
+            let id = req.params.pid
+            let productImage = req.file;
+
+            if(!isValidObjectId(id)){
+                return CustomError.createError("Error ID", null,"Ingresar ID valido de MongoDB",TIPOS_ERROR.ARGUMENTOS_INVALIDOS)
+            }
+
+            if(!productImage){
+                return CustomError.createError("Error", null,`Error archivos faltantes`,TIPOS_ERROR.ARGUMENTOS_INVALIDOS)
+            }
+
+
+            let imgbbResponse = await fetch('https://api.imgbb.com/1/upload', {
+                method: 'POST',
+                body: new URLSearchParams({
+                    key: "6937000a0b81776002404dd1a46a5785",
+                    image: productImage.buffer.toString('base64')
+                })
+            });
+            let imgbbData = await imgbbResponse.json();
+            let imageUrl = imgbbData.data.url;
+            let updatedProduct = await productService.updateThumbnail(id, imageUrl);
+
+            const acceptsHtml = req.accepts('html');
+
+            if (acceptsHtml) {
+                res.redirect('/products');
+            } else {
+                res.status(200).json({ payload: `Imagen subida correctamente`, product: updatedProduct });
+            }
+            // res.status(200).json({ payload: `Imagen subida correctamente`, product: updatedProduct });
+        } catch (error) {
+            next(error);
         }
     }
 }

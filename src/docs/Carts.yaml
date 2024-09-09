@@ -189,7 +189,7 @@ paths:
                 $ref: '#components/errors/e500'  
   /api/carts/:cid/product/:pid:
     post:
-      summary: Agregar producto al carrito sus Id
+      summary: Agregar producto al carrito
       tags:
         - Carts
       description: Devuelve el carrito con el producto agregado
@@ -242,7 +242,7 @@ paths:
               schema: 
                 $ref: '#components/errors/e500'
     put:
-      summary: Actualizar producto del carrito sus Id
+      summary: Actualizar producto del carrito
       tags:
         - Carts
       description: Devuelve el carrito con el producto actualizado
@@ -295,7 +295,7 @@ paths:
               schema: 
                 $ref: '#components/errors/e500'
     delete:
-      summary: Elininar producto dl carrito sus Id
+      summary: Elininar producto del carrito
       tags:
         - Carts
       description: Elimina un producto del carrito

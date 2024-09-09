@@ -11,6 +11,7 @@ const productsSchema = new mongoose.Schema(
         stock: {type: Number, required: true},
         category: {type: String, required: true},
         owner: {type: String, default: "admin"},
+        thumbnail: { type: String }
     },
     {
         timestamps: true

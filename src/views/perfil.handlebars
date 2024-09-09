@@ -1,7 +1,13 @@
 <h2>Usuario {{usuario.nombre}}</h2>
 <hr>
 <h3>Datos usuario:</h3>
-<p>Nombre: <strong>{{usuario.nombre}}</strong></p>
+<p>Nombre: <strong>{{usuario.first_name}}</strong></p>
+{{#if usuario.last_name}}
+<p>Apellido: <strong>{{usuario.last_name}}</strong></p>
+{{/if}}
+{{#if usuario.age}}
+<p>Edad: <strong>{{usuario.age}}</strong></p>
+{{/if}}
 <p>Rol: <strong>{{usuario.rol}}</strong></p>
 <p>Correo electrónico: <strong>{{usuario.email}}</strong></p>
 <br>

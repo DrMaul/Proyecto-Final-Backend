@@ -5,7 +5,7 @@ import { TIPOS_ERROR } from "../utils/EErrors.js";
 export class MockingController {
     static generateProductsMocks = async (req,res,next)=> {
         try {
-            try {
+            
             let products = []
             
             for(let i=0; i<=100; i++){
@@ -24,9 +24,7 @@ export class MockingController {
             
             res.setHeader('Content-type', 'application/json')
             res.status(200).json({products})
-            } catch (error) {
-                return CustomError.createError("Error", null,"Internal server Error",TIPOS_ERROR.INTERNAL_SERVER_ERROR)
-            }
+            
         } catch (error) {
             req.logger.fatal(JSON.stringify({
                 name:error.name, 

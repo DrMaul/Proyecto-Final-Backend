@@ -1,0 +1,65 @@
+<h2>Editar Producto</h2>
+<hr>
+<br>
+<a href="/products">Volver</a>
+<h3>Product Details</h3>
+    <div>
+        <p><strong>{{product.title}}</strong></p>
+        <p>{{product.description}}</p>
+        <p>Code: {{product.code}}</p>
+        <p>Price: ${{product.price}}</p>
+        <p>Stock: {{product.stock}}</p>
+        <p>Category: {{product.category}}</p>
+        {{#if product.thumbnail}}
+            <img 
+                src="{{product.thumbnail}}" 
+                alt="Product Image" 
+                width="250" 
+                height="250">
+        {{else}}
+            <p>No image available</p>
+        {{/if}}
+    </div>
+<br>
+<hr>
+<br>
+<h3>Formulario de Edición</h3>
+<br>
+<form id="productForm" enctype="multipart/form-data">
+    <label for="product">Editar Producto</label>
+    <select name="editProduct" id="editProduct">
+        <option value="title" data-value="{{product.title}}">Titulo</option>
+        <option value="description" data-value="{{product.description}}">Descripcion</option>
+        <option value="code" data-value="{{product.code}}">Codigo</option>
+        <option value="price" data-value="{{product.price}}">Precio</option>
+        <option value="stock" data-value="{{product.stock}}">Stock</option>
+        <option value="category" data-value="{{product.category}}">Categoria</option>
+    </select>
+    <input type="text" name="editProductValue" id="editProductValue" value="{{product.title}}" style="width: 100%; max-width: 500px;">
+    <input type="hidden" name="productId" value="{{product._id}}">
+    <button type="submit">Editar Producto</button>
+</form>
+<br>
+<form action="/api/products/uploadImage/{{product._id}}" method="post" enctype="multipart/form-data">
+    <label for="product">Editar imagen</label>
+    <br>
+    <input type="file" name="thumbnail" id="thumbnail">
+    
+    <br>
+    <button type="submit">Subir imagen de producto</button>
+</form>
+<br>
+
+<br><br>
+
+<script src="/js/editProduct.js"></script>
+
+<script>
+    const editProductSelect = document.getElementById("editProduct");
+    const editProductValueInput = document.getElementById("editProductValue");
+    editProductSelect.addEventListener("change", function() {
+        const selectedOption = editProductSelect.options[editProductSelect.selectedIndex];
+        const selectedValue = selectedOption.getAttribute('data-value');
+        editProductValueInput.value = selectedValue || '';
+    });
+</script>

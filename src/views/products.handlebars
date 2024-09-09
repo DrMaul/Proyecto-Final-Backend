@@ -12,7 +12,7 @@
         <li><a href="/products?category={{this}}">{{this}}</a></li>
     {{/each}}
 </ul>
-<input type="text" value="{{cart._id}}" id="cart">
+<input type="hidden" value="{{cart._id}}" id="cart">
 <br><br>
 <div>
     <select id="orderBy">
@@ -23,34 +23,34 @@
 </div>
 <br><br>
 
-<ul id="productos">    
+<div id="productos">
     {{#each payload}}
-        <li>
-            <strong>{{title}}</strong> - precio: ${{price}} <button onclick="addProduct('{{_id}}')">Agregar al carrito</button>
-        </li>
-        <br>
+        <div>
+            <img src="{{thumbnail}}" alt="{{title}}">
+            <h2>{{title}}</h2>
+            <p>Precio: ${{price}}</p>
+            <button onclick="addProduct('{{_id}}')">Agregar al carrito</button>
+            {{#if ../esAdmin}}
+                <a href="/product/{{_id}}">Editar</a>
+            {{/if}}
+        </div>
     {{/each}}
-
-</ul>
+</div>
 <br><br>
 
-<a href="/products?page=1">Pag. 1</a>
-{{#if hasPrevPage}}
-    <a href="/products?page={{prevPage}}">Anterior</a>
-{{/if}}
-
-{{#if hasNextPage}}
-    <a href="/products?page={{nextPage}}">Siguiente</a>
-{{/if}}
-
-<a href="/products?page={{totalPages}}">Ult. pag</a>
+<div class="pagination">
+    <a href="/products?page=1">Pag. 1</a>
+    {{#if hasPrevPage}}
+        <a href="/products?page={{prevPage}}">Anterior</a>
+    {{/if}}
+    {{#if hasNextPage}}
+        <a href="/products?page={{nextPage}}">Siguiente</a>
+    {{/if}}
+    <a href="/products?page={{totalPages}}">Ult. pag</a>
+</div>
 
 <br><br><br>
-
-
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/setCart.js"></script>
 <script src="/js/sortProducts.js"></script>
-
-

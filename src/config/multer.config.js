@@ -1,29 +1,42 @@
-import multer from "multer"
-import fs from "fs"
-import path from 'path'
-import __dirname from "../utils.js"
+import multer from "multer";
+import fs from "fs";
+import path from "path";
+import __dirname from "../utils.js";
 
-const storage = multer.diskStorage({
-    destination: function(req,file,cb){
-        let folder
-        if(file.fieldname === "profile"){
-            folder = "profiles"
-        }else if(file.fieldname === "product"){
-            folder = "products"
-        }else {
-            folder = "documents"
+// Configuración de diskStorage para productos, perfiles y documentos
+const diskStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        let folder;
+        if (file.fieldname === "profile") {
+            folder = "profiles";
+        } else if (file.fieldname === "product") {
+            folder = "products";
+        } else {
+            folder = "documents";
         }
 
-        const userFolder = path.join(__dirname,"uploads",folder)
-        fs.mkdirSync(userFolder,{recursive:true})
-        cb(null, userFolder)
+        const userFolder = path.join(__dirname, "uploads", folder);
+        fs.mkdirSync(userFolder, { recursive: true });
+        cb(null, userFolder);
     },
-    filename: function(req,file,cb){
-        if(file.fieldname == "document"){
-            cb(null, req.body.documentType + "-" + file.fieldname + "-" + req.session.usuario.first_name + "-" + file.originalname)
+    filename: function (req, file, cb) {
+        let filename;
+        if (file.fieldname === "document") {
+            filename = `${req.body.documentType}-${file.fieldname}-${req.session.usuario.first_name}-${file.originalname}`;
+        } else {
+            filename = `${file.fieldname}-${req.session.usuario.first_name}-${file.originalname}`;
         }
-        cb(null, file.fieldname + "-" + req.session.usuario.first_name + "-" + file.originalname)
-    }
-})
 
-export const upload = multer({storage:storage})
+        cb(null, filename);
+    }
+});
+
+// Configuración de memoryStorage para el thumbnail
+const memoryStorage = multer.memoryStorage();
+
+// Middleware para subir imágenes de productos usando diskStorage
+export const upload = multer({ storage: diskStorage });
+
+// Middleware para subir thumbnails usando memoryStorage
+export const uploadMemoryStorage = multer({ storage: memoryStorage });
+
