@@ -29,7 +29,7 @@ import {Server} from 'socket.io'
 import {messagesModelo} from './dao/models/messages.modelo.js'
 
 
-const PORT = 8080
+const PORT = config.PORT
 const app = express()
 
 let io
